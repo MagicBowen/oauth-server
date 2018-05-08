@@ -9,7 +9,7 @@ module.exports = {
         name: 'xiao mi ai audio device',
         accessTokenLifetime: 3600,    // If omitted, server default will be used
         refreshTokenLifetime: 604800, // ^
-        redirectUris: ['http://localhost:3000'],
+        redirectUris: [],
         grants: ['client_credentials', 'refresh_token', 'authorization_code', 'password'],
         validScopes: ['secret', 'edit'],
     }],

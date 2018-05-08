@@ -128,8 +128,7 @@ model.revokeAuthorizationCode = (code) => {
         return authCode.authorizationCode === code.authorizationCode;
     });
 
-    console.log('idx = ' + idx);
-    if(idx != -1) { return false; }
+    if(idx == -1) { return false; }
 
     db.authCodes.splice(idx, 1);
     code.expiresAt.setYear(1984); // Same as for `revokeToken()`

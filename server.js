@@ -70,7 +70,7 @@ process.on('uncaughtException',function(err){
 const rPrivate = new Router();
 const rSecret = new Router();
 
-rSecret.get('/', (ctx) => {
+rSecret.get('/', oauth.scope('secret'), (ctx) => {
     ctx.response.body = { message: 'Displaying user secret.' };
 });
 
@@ -79,7 +79,7 @@ rSecret.post('/', oauth.scope('edit'), (ctx) => {
 });
 
 rPrivate.use(oauth.authenticate());
-rPrivate.use('/secret', oauth.scope('secret'), rSecret.routes());
+rPrivate.use('/secret', rSecret.routes());
 
 app.use(rPrivate.routes());
 

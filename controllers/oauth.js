@@ -24,9 +24,17 @@ var oauthAuthorize = async (ctx, next) => {
     const client = db.clients.find((client) => {
         return client.id === ctx.session.query.client_id;
     });
-
+    
     if(!client) { ctx.throw(401, 'No such client'); }
+    
+    const redirect_uri = client.redirectUris.find((uri) => {
+        return uri === ctx.session.query.redirect_uri;
+    });
 
+    if(!redirect_uri) {
+        client.redirectUris.push(ctx.session.query.redirect_uri);
+        console.log(`Add new redirect uri(${ctx.session.query.redirect_uri}) to client(${client.id})`);
+    }
     ctx.render('authorize.html', client);
 };
 
