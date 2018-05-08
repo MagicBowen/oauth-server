@@ -1,0 +1,26 @@
+{
+    "name": "oauth-server",
+    "version": "0.0.1",
+    "description": "oauth server for course table",
+    "main": "server.js",
+    "scripts": {
+        "start": "node --use_strict server.js"
+    },
+    "author": "xiaoda.ai",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/magicbowen/oauth-server.git"
+    },
+    "dependencies": {
+        "koa": "2.0.0",
+        "koa-router": "7.0.0",
+        "koa-bodyparser": "3.2.0",
+        "nunjucks": "2.4.2",
+        "mime": "1.3.4",
+        "mz": "2.4.0",
+        "koa-convert": "^1.2.0",
+        "koa-session": "^3.3.1",
+        "oauth2-server": "^3.0.0"
+    }
+}

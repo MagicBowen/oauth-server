@@ -1,0 +1,15 @@
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <title>authorize</title> 
+</head> 
+<body> 
+    <p id="authorize"> 
+        <h1>Grant access to {{client.name}}</h1>
+        <p>The application requests access to {{ctx.session.query.scope}}</p>
+        <form method="post"> 
+            <input type="submit" value="Grant access">
+        </form>
+    </p> 
+</body> 
+</html>
