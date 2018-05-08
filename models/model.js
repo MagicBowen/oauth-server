@@ -91,6 +91,7 @@ model.revokeToken = (token) => {
         return item.refreshToken === token.refreshToken;
     });
 
+    if(idx == -1) { return false; }
     db.tokens.splice(idx, 1);
 
     // Note: Presently, this method must return the revoked token object with

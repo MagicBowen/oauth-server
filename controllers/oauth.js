@@ -59,7 +59,6 @@ var doAuthorize = async (ctx, next) => {
         authenticateHandler: {
             handle: (req, res) => {
                 return db.users.find((user) => {
-                    console.log(`user.id = ${user.id}, user_id = ${req.body.user_id}`);
                     return user.id === req.body.user_id;
                 });
             }
