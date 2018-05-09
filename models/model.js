@@ -1,5 +1,5 @@
 
-var model = !(process.env.NODE_ENV === 'production')? require('./mongo-model') : require('./mem-model');
+var model = (process.env.NODE_ENV === 'production')? require('./mongo-model') : require('./mem-model');
 
 // In the client credentials grant flow, the client itself needs to be related
 // with some form of user representation
