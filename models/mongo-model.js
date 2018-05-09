@@ -57,7 +57,7 @@ model.init = async () => {
             refreshTokenLifetime: 604800,
             redirectUris: [],
             grants: ['authorization_code'],
-            validScopes: ['course'],                
+            validScopes: [],                
         });        
         await xiaomi.save();
         console.log('Save client(xiaomi) in mongo successful!');

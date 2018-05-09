@@ -25,9 +25,11 @@ class KoaOAuthServer {
             : (token, data) => { return Promise.resolve(token); };
 
         // If no `checkScope` method is set via the model, we provide a default
-        this.checkScope = options.model.checkScope
-            ? options.model.checkScope
-            : (scope, token) => { return token.scope.indexOf(scope) !== -1; }
+        if(options.scope) {
+            this.checkScope = options.model.checkScope
+                ? options.model.checkScope
+                : (scope, token) => { return token.scope.indexOf(scope) !== -1; }
+        }
 
         this.server = new OAuthServer(options);
     }
@@ -98,6 +100,8 @@ class KoaOAuthServer {
     scope(required) {
         console.log(`Creating scope check middleware (${required})`);
         return (ctx, next) => {
+            if (!this.checkScope) return next();
+            
             const result = this.checkScope(required, ctx.state.oauth.token);
             if(result !== true) {
                 const err = result === false

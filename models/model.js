@@ -20,17 +20,19 @@ model.verifyScope = (token, scope) => {
 };
 
 // Can be used to sanitize or purely validate requested scope string
-model.validateScope = (user, client, scope) => {
-    console.log(`Validating requested scope: ${scope}`);
+// model.validateScope = (user, client, scope) => {
+//     console.log(`Validating requested scope: ${scope}`);
 
-    const validScope = (scope || '').split(' ').filter((key) => {
-        return client.validScopes.indexOf(key) !== -1;
-    });
+//     if(!scope) return false;
 
-    if(!validScope.length) { return false; }
+//     const validScope = (scope || '').split(' ').filter((key) => {
+//         return client.validScopes.indexOf(key) !== -1;
+//     });
 
-    return validScope.join(' ');
-};
+//     if(!validScope.length) { return false; }
+
+//     return validScope.join(' ');
+// };
 
 module.exports = model;
 

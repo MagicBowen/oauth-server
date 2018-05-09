@@ -23,7 +23,7 @@ app.use(convert(session(app)))
 ///////////////////////////////////////////////////////////
 const OAuthServer = require('./oauth-server');
 const oauth = new OAuthServer({
-    scope: true, 
+    scope: false, 
     model: require('./models/model'),
     allowBearerTokensInQueryString: true,
     accessTokenLifetime: 3600, 
