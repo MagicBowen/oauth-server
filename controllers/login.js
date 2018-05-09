@@ -8,15 +8,14 @@ var postLogin = async (ctx, next) => {
     const creds = ctx.request.body;
     console.log(`Authenticating ${creds.username}`);
 
-    const user = model.getUser(creds.username, creds.password);
+    const user = await model.getUser(creds.username, creds.password);
 
     if(!user) {
         console.log('Invalid credentials');
         ctx.redirect('/login');
         return;
     }
-
-    console.log(`Success!`);
+    console.log(`User ${user.id} Login Success!`);
     ctx.session.userId = user.id;
 
     // If we were sent here from grant page, redirect back

@@ -21,7 +21,7 @@ var oauthAuthorize = async (ctx, next) => {
         return;
     }
 
-    const client = model.getClient(ctx.session.query.client_id);
+    const client = await model.getClient(ctx.session.query.client_id);
     
     if(!client) { ctx.throw(401, 'No such client'); }
     
@@ -56,7 +56,7 @@ var authCodeGrant = async (ctx, next) => {
 var doAuthorize = async (ctx, next) => {
     var run = ctx.oauth.authorize({
         authenticateHandler: {
-            handle: (req, res) => { return model.getUserById(req.body.user_id); }
+            handle: async (req, res) => { return await model.getUserById(req.body.user_id); }
         }
     });
     return run(ctx, next);

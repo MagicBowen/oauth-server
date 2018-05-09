@@ -23,6 +23,8 @@ mongoose.model('OAuthCodes', new Schema({
   expiresAt : { type: Date },
   client    : { type: Object },
   user      : { type: Object },
+  scope     : { type: String },
+  redirectUri : { type: String }
 }));
 
 mongoose.model('OAuthTokens', new Schema({
@@ -32,6 +34,7 @@ mongoose.model('OAuthTokens', new Schema({
   refreshTokenExpiresAt: { type: Date },
   client : { type: Object },
   user   : { type: Object },
+  scope  : { type: String },  
 }));
 
 var Token  = mongoose.model('OAuthTokens');
@@ -39,208 +42,146 @@ var Code   = mongoose.model('OAuthCodes');
 var Client = mongoose.model('OAuthClients');
 var User   = mongoose.model('OAuthUsers');
 
-// const db = {
-//     clients: [{
-//         id: 'xiaomi',
-//         secret: '123456', 
-//         name: 'xiao mi ai audio device',
-//         accessTokenLifetime: 3600,    // If omitted, server default will be used
-//         refreshTokenLifetime: 604800, // ^
-//         redirectUris: [],
-//         grants: ['client_credentials', 'refresh_token', 'authorization_code', 'password'],
-//         validScopes: ['secret', 'edit'],
-//     }],
-//     users: [{
-//         id: 1,
-//         name: 'bowen',
-//         username: 'wangbo@xiaoda.ai',
-//         password: '00AAaa',
-//     }],
-//     tokens: [],
-//     authCodes: []
-// };
-
 const model = {};
 
-model.init = () => {
-    mongoose.connect('mongodb://localhost:27017/course');
-    // init client in DB
+model.init = async () => {
+    mongoose.connect('mongodb://localhost:27017/oauth');
+
+    var result = await Client.findOne({id : 'xiaomi'}).exec();
+    if (!result) {
+        var xiaomi = new Client({
+            id: 'xiaomi',
+            secret: '123456', 
+            name: 'xiao mi ai audio device',
+            accessTokenLifetime: 3600,
+            refreshTokenLifetime: 604800,
+            redirectUris: [],
+            grants: ['authorization_code'],
+            validScopes: ['course'],                
+        });        
+        await xiaomi.save();
+        console.log('Save client(xiaomi) in mongo successful!');
+    } else {
+        console.log('OAuth client(xiaomi) is already in mongo!');
+    }
     console.log('Init mongo db model successful!');
 }
 
-// Client lookup - Note that for *authcode* grants, the secret is not provided
-model.getClient = (id, secret) => {
+model.getClient = async (id, secret) => {
     console.log(`Looking up client ${id}:${secret}`);
 
-    const lookupMethod = !secret
-        ? (client) => { return client.id === id; }
-        : (client) => { return client.id === id && client.secret === secret };
+    const condition = (secret) ? {id : id, secret : secret} : {id : id};
 
-    return db.clients.find(lookupMethod);
+    return await Client.findOne(condition).exec();
 };
 
-model.updateClient = (client) => {
-    const oriClient = model.getClient(client.id);
-    for (var k in client) {
-        oriClient[k] = client[k]
+model.updateClient = async (client) => {
+    console.log(`Update client ${client.id}`);
+
+    const oriClient = await Client.findOne({id : client.id}).exec();
+    if (!oriClient) {
+        console.log(`Find client (${client.id}) failed when update`);
+        return;
     }
+
+    oriClient.set(client);
+    await oriClient.save();
+
+    console.log(`Save client(${client.id}) success when update`);
 }
 
-model.getUser = (username, password) => {
+model.getUser = async (username, password) => {
     console.log(`Looking up user ${username}:${password}`);
 
-    return db.users.find((user) => {
-        return user.username === username && user.password === password;
-    });
+    const condition = {username : username, password : password};
+    return await User.findOne(condition).exec();
 };
 
-model.getUserById = (id) => {
-    console.log(`Looking up user id = ${id}`);
+model.getUserById = async (id) => {
+    console.log(`Looking up user by id = ${id}`);
 
-    return db.users.find((user) => {
-        return user.id === id;
-    });
+    const condition = {id : id};
+    return await User.findOne(condition).exec();
 };
 
-// In the client credentials grant flow, the client itself needs to be related
-// with some form of user representation
-model.getUserFromClient = (client) => {
-    console.log(`Looking up user for client ${client.name}`);
-    return { name: client.name, isClient: true };
-};
-
-// Performs a lookup on the provided string and returns a token object
-model.getAccessToken = (accessToken) => {
+model.getAccessToken = async (accessToken) => {
     console.log(`Get access token ${accessToken}`);
 
-    const token = db.tokens.find((token) => {
-        return token.accessToken === accessToken;
-    });
-
+    const token = await Token.findOne({accessToken : accessToken}).exec();
     if(!token) { return false; }
 
-    // Populate with user and client model instances
-    token.user = db.users.find((user) => {
-        return user.id === token.user.id;
-    });
-
-    token.client = db.clients.find((client) => {
-        return client.id === token.client.id;
-    });
+    token.user = await User.findOne({id : token.user.id}).exec();
+    token.client = await Client.findOne({id : token.client.id}).exec();
 
     return token;
 };
 
-// Performs a lookup on the provided string and returns a token object
-model.getRefreshToken = (refreshToken) => {
+model.getRefreshToken = async (refreshToken) => {
     console.log(`Get refresh token ${refreshToken}`);
-    const token = db.tokens.find((token) => {
-        return token.refreshToken === refreshToken;
-    });
 
+    const token = await Token.findOne({refreshToken : refreshToken}).exec();
     if(!token) { return false; }
 
-    // Populate with user and client model instances
-    token.user = db.users.find((user) => {
-        return user.id === token.user.id;
-    });
-
-    token.client = db.clients.find((client) => {
-        return client.id === token.client.id;
-    });
+    token.user = await User.findOne({id : token.user.id}).exec();
+    token.client = await Client.findOne({id : token.client.id}).exec();
 
     return token;
 };
 
-// Saves the newly generated token object
-model.saveToken = (token, client, user) => {
+model.saveToken = async (token, client, user) => {
     console.log(`Save token ${token.accessToken}`);
 
     token.user   = { id: user.id }; 
     token.client = { id: client.id };
 
-    db.tokens.push(token);
+    const newTocken = new Token(token);
+    await newTocken.save();
+    
     return token;
 };
 
-// Revoke refresh token after use - note ExpiresAt detail!
-model.revokeToken = (token) => {
+model.revokeToken = async (token) => {
     console.log(`Revoke token ${token.refreshToken}`);
 
-    // Note: This is normally the DB object instance from getRefreshToken, so
-    // just token.delete() or similar rather than the below findIndex.
-    const idx = db.tokens.findIndex((item) => {
-        return item.refreshToken === token.refreshToken;
-    });
+    const oriToken = await Token.findOne({refreshToken : token.refreshToken}).exec();
 
-    if(idx == -1) { return false; }
-    db.tokens.splice(idx, 1);
+    if(!oriToken) { return false; }
 
-    // Note: Presently, this method must return the revoked token object with
-    // an expired date. This is currently being discussed in
-    // https://github.com/thomseddon/node-oauth2-server/issues/251
-    
+    await Token.deleteOne({refreshToken : token.refreshToken});
+
     token.refreshTokenExpiresAt = new Date(1984);
     return token;
 };
 
-// Retrieves an authorization code
-model.getAuthorizationCode = (code) => {
+model.getAuthorizationCode = async (code) => {
     console.log(`Retrieving authorization code ${code}`);
 
-    return db.authCodes.find((authCode) => {
-        return authCode.authorizationCode === code;
-    });
+    return await Code.findOne({authorizationCode : code}).exec();
 };
 
-// Saves the newly generated authorization code object
-model.saveAuthorizationCode = (code, client, user) => {
+model.saveAuthorizationCode = async (code, client, user) => {
     console.log(`Saving authorization code ${code.authorizationCode}`);
+
     code.user   = { id: user.id };
     code.client = { id: client.id };
 
-    db.authCodes.push(code);
+    const newCode = new Code(code);
+    await newCode.save();
+
     return code;
 };
 
-// Revokes the authorization code after use - note ExpiresAt detail!
-model.revokeAuthorizationCode = (code) => {
+model.revokeAuthorizationCode = async (code) => {
     console.log(`Revoking authorization code ${code.authorizationCode}`);
     
-    const idx = db.authCodes.findIndex((authCode) => {
-        return authCode.authorizationCode === code.authorizationCode;
-    });
+    const oriCode = await Code.findOne({authorizationCode : code.authorizationCode}).exec();
 
-    if(idx == -1) { return false; }
+    if(!oriCode) { return false; }
 
-    db.authCodes.splice(idx, 1);
-    code.expiresAt.setYear(1984); // Same as for `revokeToken()`
+    await Code.deleteOne({authorizationCode : code.authorizationCode});
 
+    code.expiresAt.setYear(1984);
     return code;
-};
-
-// Called in `authenticate()` - basic check for scope existance
-// `scope` corresponds to the oauth server configuration option, which
-// could either be a string or boolean true.
-// Since we utilize router-based scope check middleware, here we simply check
-// for scope existance.
-model.verifyScope = (token, scope) => {
-    console.log(`Verify scope ${scope} in token ${token.accessToken}`);
-    if(scope && !token.scope) { return false; }
-    return token;
-};
-
-// Can be used to sanitize or purely validate requested scope string
-model.validateScope = (user, client, scope) => {
-    console.log(`Validating requested scope: ${scope}`);
-
-    const validScope = (scope || '').split(' ').filter((key) => {
-        return client.validScopes.indexOf(key) !== -1;
-    });
-
-    if(!validScope.length) { return false; }
-
-    return validScope.join(' ');
 };
 
 module.exports = model;

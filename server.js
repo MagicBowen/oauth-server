@@ -26,8 +26,8 @@ const oauth = new OAuthServer({
     scope: true, 
     model: require('./models/model'),
     allowBearerTokensInQueryString: true,
-    accessTokenLifetime: 3600,   // 1 hour
-    refreshTokenLifetime: 604800 // 1 week
+    accessTokenLifetime: 3600, 
+    refreshTokenLifetime: 604800 
 });
 
 function upateOAuth(oauth) {
@@ -71,18 +71,13 @@ process.on('uncaughtException',function(err){
 
 ///////////////////////////////////////////////////////////
 const rPrivate = new Router();
-const rSecret = new Router();
+const rCourse = new Router();
 
-rSecret.get('/', oauth.scope('secret'), (ctx) => {
-    ctx.response.body = { message: 'Displaying user secret.' };
+rCourse.get('/', oauth.scope('course'), (ctx) => {
+    ctx.response.body = { message: 'Get user course success!' };
 });
-
-rSecret.post('/', oauth.scope('edit'), (ctx) => {
-    ctx.response.body = { message: 'User secret updated!' };
-});
-
 rPrivate.use(oauth.authenticate());
-rPrivate.use('/secret', rSecret.routes());
+rPrivate.use('/course', rCourse.routes());
 
 app.use(rPrivate.routes());
 

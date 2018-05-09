@@ -3,17 +3,16 @@ const db = {
         id: 'xiaomi',
         secret: '123456', 
         name: 'xiao mi ai audio device',
-        accessTokenLifetime: 3600,    // If omitted, server default will be used
-        refreshTokenLifetime: 604800, // ^
+        accessTokenLifetime: 3600,
+        refreshTokenLifetime: 604800,
         redirectUris: [],
         grants: ['client_credentials', 'refresh_token', 'authorization_code', 'password'],
-        validScopes: ['secret', 'edit'],
+        validScopes: ['course'],
     }],
     users: [{
-        id: 1,
-        name: 'bowen',
+        id: '1',
         username: 'wangbo@xiaoda.ai',
-        password: '00AAaa',
+        password: '123456',
     }],
     tokens: [],
     authCodes: []
@@ -57,13 +56,6 @@ model.getUserById = (id) => {
     return db.users.find((user) => {
         return user.id === id;
     });
-};
-
-// In the client credentials grant flow, the client itself needs to be related
-// with some form of user representation
-model.getUserFromClient = (client) => {
-    console.log(`Looking up user for client ${client.name}`);
-    return { name: client.name, isClient: true };
 };
 
 // Performs a lookup on the provided string and returns a token object
@@ -174,30 +166,6 @@ model.revokeAuthorizationCode = (code) => {
     code.expiresAt.setYear(1984); // Same as for `revokeToken()`
 
     return code;
-};
-
-// Called in `authenticate()` - basic check for scope existance
-// `scope` corresponds to the oauth server configuration option, which
-// could either be a string or boolean true.
-// Since we utilize router-based scope check middleware, here we simply check
-// for scope existance.
-model.verifyScope = (token, scope) => {
-    console.log(`Verify scope ${scope} in token ${token.accessToken}`);
-    if(scope && !token.scope) { return false; }
-    return token;
-};
-
-// Can be used to sanitize or purely validate requested scope string
-model.validateScope = (user, client, scope) => {
-    console.log(`Validating requested scope: ${scope}`);
-
-    const validScope = (scope || '').split(' ').filter((key) => {
-        return client.validScopes.indexOf(key) !== -1;
-    });
-
-    if(!validScope.length) { return false; }
-
-    return validScope.join(' ');
 };
 
 module.exports = model;
