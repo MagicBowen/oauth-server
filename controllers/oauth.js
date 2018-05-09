@@ -1,4 +1,4 @@
-const db    = require('../models/db')
+const model = require('../models/model')
 
 // Token acquisition endpoint
 var oauthToken = async (ctx, next) => {
@@ -21,9 +21,7 @@ var oauthAuthorize = async (ctx, next) => {
         return;
     }
 
-    const client = db.clients.find((client) => {
-        return client.id === ctx.session.query.client_id;
-    });
+    const client = model.getClient(ctx.session.query.client_id);
     
     if(!client) { ctx.throw(401, 'No such client'); }
     
@@ -33,6 +31,7 @@ var oauthAuthorize = async (ctx, next) => {
 
     if(!redirect_uri) {
         client.redirectUris.push(ctx.session.query.redirect_uri);
+        model.updateClient(client);
         console.log(`Add new redirect uri(${ctx.session.query.redirect_uri}) to client(${client.id})`);
     }
     ctx.render('authorize.html', client);
@@ -57,11 +56,7 @@ var authCodeGrant = async (ctx, next) => {
 var doAuthorize = async (ctx, next) => {
     var run = ctx.oauth.authorize({
         authenticateHandler: {
-            handle: (req, res) => {
-                return db.users.find((user) => {
-                    return user.id === req.body.user_id;
-                });
-            }
+            handle: (req, res) => { return model.getUserById(req.body.user_id); }
         }
     });
     return run(ctx, next);

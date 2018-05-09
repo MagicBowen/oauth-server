@@ -1,5 +1,25 @@
-const db    = require('./db'), // Mock data
-      model = {};              // OAuth2 model container
+const db = {
+    clients: [{
+        id: 'xiaomi',
+        secret: '123456', 
+        name: 'xiao mi ai audio device',
+        accessTokenLifetime: 3600,    // If omitted, server default will be used
+        refreshTokenLifetime: 604800, // ^
+        redirectUris: [],
+        grants: ['client_credentials', 'refresh_token', 'authorization_code', 'password'],
+        validScopes: ['secret', 'edit'],
+    }],
+    users: [{
+        id: 1,
+        name: 'bowen',
+        username: 'wangbo@xiaoda.ai',
+        password: '00AAaa',
+    }],
+    tokens: [],
+    authCodes: []
+};
+
+const model = {};
 
 // Client lookup - Note that for *authcode* grants, the secret is not provided
 model.getClient = (id, secret) => {
@@ -12,11 +32,26 @@ model.getClient = (id, secret) => {
     return db.clients.find(lookupMethod);
 };
 
+model.updateClient = (client) => {
+    const oriClient = model.getClient(client.id);
+    for (var k in client) {
+        oriClient[k] = client[k]
+    }
+}
+
 model.getUser = (username, password) => {
     console.log(`Looking up user ${username}:${password}`);
 
     return db.users.find((user) => {
         return user.username === username && user.password === password;
+    });
+};
+
+model.getUserById = (id) => {
+    console.log(`Looking up user id = ${id}`);
+
+    return db.users.find((user) => {
+        return user.id === id;
     });
 };
 

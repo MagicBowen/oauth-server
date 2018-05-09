@@ -1,4 +1,4 @@
-const db    = require('../models/db')
+const model    = require('../models/model')
 
 var getLogin = async (ctx, next) => {
     ctx.render('login.html');
@@ -8,10 +8,7 @@ var postLogin = async (ctx, next) => {
     const creds = ctx.request.body;
     console.log(`Authenticating ${creds.username}`);
 
-    const user = db.users.find((user) => {
-        return user.username === creds.username
-            && user.password === creds.password;
-    });
+    const user = model.getUser(creds.username, creds.password);
 
     if(!user) {
         console.log('Invalid credentials');
