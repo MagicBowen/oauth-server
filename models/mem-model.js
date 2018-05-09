@@ -1,3 +1,5 @@
+const logger = require('../logger').logger('mem-model');
+
 const db = {
     clients: [{
         id: 'xiaomi',
@@ -9,11 +11,7 @@ const db = {
         grants: ['client_credentials', 'refresh_token', 'authorization_code', 'password'],
         validScopes: ['course'],
     }],
-    users: [{
-        id: '1',
-        username: 'wangbo@xiaoda.ai',
-        password: '123456',
-    }],
+    users: [],
     tokens: [],
     authCodes: []
 };
@@ -21,12 +19,13 @@ const db = {
 const model = {};
 
 model.init = () => {
-    console.log('Init memory db model successful!');
+    model.addUser('13759947708', '123456');
+    logger.info('Init memory db model successful!');
 }
 
 // Client lookup - Note that for *authcode* grants, the secret is not provided
 model.getClient = (id, secret) => {
-    console.log(`Looking up client ${id}:${secret}`);
+    logger.debug(`Looking up client ${id}:${secret}`);
 
     const lookupMethod = !secret
         ? (client) => { return client.id === id; }
@@ -43,15 +42,46 @@ model.updateClient = (client) => {
 }
 
 model.getUser = (username, password) => {
-    console.log(`Looking up user ${username}:${password}`);
+    logger.debug(`Looking up user ${username}:${password}`);
 
     return db.users.find((user) => {
         return user.username === username && user.password === password;
     });
 };
 
+model.addUser = (username, password) => {
+    const timestamp = new Date().getTime();
+    logger.debug(`Try add new user ${username}:${password} at ${timestamp}`);
+
+    const user = db.users.find((user) => {
+        return user.username === username;
+    });
+
+    if(user) {
+        user.password = password;
+        user.timestamp = timestamp
+        logger.warn(`user(${username}) is already in db, modify it's password and timestamp!`);
+    } else {
+        db.users.push({id : db.users.length + 1, username: username, password : password, timestamp : timestamp});
+        logger.debug(`Add new user ${username}:${password} successful!`);
+    }
+}
+
+model.deleteUser = (username) => {
+    const timestamp = new Date().getTime();
+    logger.warn(`Delete user ${username} at ${timestamp}`);
+
+    const idx = db.users.findIndex((user) => {
+        return user.username === username;
+    });
+
+    if(idx != -1){
+        db.tokens.splice(idx, 1);
+    }
+}
+
 model.getUserById = (id) => {
-    console.log(`Looking up user id = ${id}`);
+    logger.debug(`Looking up user id = ${id}`);
 
     return db.users.find((user) => {
         return user.id === id;
@@ -60,7 +90,7 @@ model.getUserById = (id) => {
 
 // Performs a lookup on the provided string and returns a token object
 model.getAccessToken = (accessToken) => {
-    console.log(`Get access token ${accessToken}`);
+    logger.debug(`Get access token ${accessToken}`);
 
     const token = db.tokens.find((token) => {
         return token.accessToken === accessToken;
@@ -82,7 +112,7 @@ model.getAccessToken = (accessToken) => {
 
 // Performs a lookup on the provided string and returns a token object
 model.getRefreshToken = (refreshToken) => {
-    console.log(`Get refresh token ${refreshToken}`);
+    logger.debug(`Get refresh token ${refreshToken}`);
     const token = db.tokens.find((token) => {
         return token.refreshToken === refreshToken;
     });
@@ -103,7 +133,7 @@ model.getRefreshToken = (refreshToken) => {
 
 // Saves the newly generated token object
 model.saveToken = (token, client, user) => {
-    console.log(`Save token ${token.accessToken}`);
+    logger.debug(`Save token ${token.accessToken}`);
 
     token.user   = { id: user.id }; 
     token.client = { id: client.id };
@@ -114,7 +144,7 @@ model.saveToken = (token, client, user) => {
 
 // Revoke refresh token after use - note ExpiresAt detail!
 model.revokeToken = (token) => {
-    console.log(`Revoke token ${token.refreshToken}`);
+    logger.debug(`Revoke token ${token.refreshToken}`);
 
     // Note: This is normally the DB object instance from getRefreshToken, so
     // just token.delete() or similar rather than the below findIndex.
@@ -135,7 +165,7 @@ model.revokeToken = (token) => {
 
 // Retrieves an authorization code
 model.getAuthorizationCode = (code) => {
-    console.log(`Retrieving authorization code ${code}`);
+    logger.debug(`Retrieving authorization code ${code}`);
 
     return db.authCodes.find((authCode) => {
         return authCode.authorizationCode === code;
@@ -144,7 +174,7 @@ model.getAuthorizationCode = (code) => {
 
 // Saves the newly generated authorization code object
 model.saveAuthorizationCode = (code, client, user) => {
-    console.log(`Saving authorization code ${code.authorizationCode}`);
+    logger.debug(`Saving authorization code ${code.authorizationCode}`);
     code.user   = { id: user.id };
     code.client = { id: client.id };
 
@@ -154,7 +184,7 @@ model.saveAuthorizationCode = (code, client, user) => {
 
 // Revokes the authorization code after use - note ExpiresAt detail!
 model.revokeAuthorizationCode = (code) => {
-    console.log(`Revoking authorization code ${code.authorizationCode}`);
+    logger.debug(`Revoking authorization code ${code.authorizationCode}`);
     
     const idx = db.authCodes.findIndex((authCode) => {
         return authCode.authorizationCode === code.authorizationCode;

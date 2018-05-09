@@ -1,4 +1,5 @@
 const model = require('../models/model')
+const logger = require('../logger').logger('oauth');
 
 // Token acquisition endpoint
 var oauthToken = async (ctx, next) => {
@@ -8,7 +9,7 @@ var oauthToken = async (ctx, next) => {
 
 var oauthAuthorize = async (ctx, next) => {
     if(!ctx.session.userId) {
-        console.log('User not authenticated, redirecting to /login');
+        logger.debug('User not authenticated, redirecting to /login');
         ctx.session.query = {
             state:         ctx.request.query.state,
             scope:         ctx.request.query.scope,
@@ -32,7 +33,7 @@ var oauthAuthorize = async (ctx, next) => {
     if(!redirect_uri) {
         client.redirectUris.push(ctx.session.query.redirect_uri);
         model.updateClient(client);
-        console.log(`Add new redirect uri(${ctx.session.query.redirect_uri}) to client(${client.id})`);
+        logger.debug(`Add new redirect uri(${ctx.session.query.redirect_uri}) to client(${client.id})`);
     }
     ctx.render('authorize.html', client);
 };
@@ -40,12 +41,12 @@ var oauthAuthorize = async (ctx, next) => {
 // OAuth authorization endpoint (authcode grant flow)
 var authCodeGrant = async (ctx, next) => {
     if(!ctx.session.userId) {
-        console.log('User not authenticated, redirecting to /login');
+        logger.debug('User not authenticated, redirecting to /login');
         ctx.redirect('/login');
         return;
     }
 
-    console.log('User authenticated!')
+    logger.debug('User authenticated!')
     ctx.request.body         = ctx.session.query;
     ctx.request.body.user_id = ctx.session.userId;
     ctx.session.query        = null;

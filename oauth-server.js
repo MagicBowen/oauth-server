@@ -1,5 +1,7 @@
 'use strict';
 
+const logger = require('./logger').logger('oauth-server');
+
 const OAuthServer = require('oauth2-server'),
       Request     = OAuthServer.Request,
       Response    = OAuthServer.Response;
@@ -36,9 +38,9 @@ class KoaOAuthServer {
 
     // Returns token authentication middleware
     authenticate() {
-        console.log('Creating authentication endpoint middleware');
+        logger.info('Creating authentication endpoint middleware');
         return async (ctx, next) => {
-            console.log('Running authenticate endpoint middleware');
+            logger.info('Running authenticate endpoint middleware');
             const request  = new Request(ctx.request),
                   response = new Response(ctx.response);
 
@@ -55,9 +57,9 @@ class KoaOAuthServer {
     // Returns authorization endpoint middleware
     // Used by the client to obtain authorization from the resource owner
     authorize(options) {
-        console.log('Creating authorize endpoint middleware');
+        logger.info('Creating authorize endpoint middleware');
         return async (ctx, next) => {
-            console.log('Running authorize endpoint middleware');
+            logger.info('Running authorize endpoint middleware');
             const request  = new Request(ctx.request),
                   response = new Response(ctx.response);
 
@@ -75,9 +77,9 @@ class KoaOAuthServer {
     // Returns token endpoint middleware
     // Used by the client to exchange authorization grant for access token
     token() {
-        console.log('Creating token endpoint middleware');
+        logger.info('Creating token endpoint middleware');
         return async (ctx, next) => {
-            console.log('Running token endpoint middleware');
+            logger.info('Running token endpoint middleware');
             const request  = new Request(ctx.request),
                   response = new Response(ctx.response);
 
@@ -98,7 +100,7 @@ class KoaOAuthServer {
     // Returns scope check middleware
     // Used to limit access to a route or router to carriers of a certain scope.
     scope(required) {
-        console.log(`Creating scope check middleware (${required})`);
+        logger.info(`Creating scope check middleware (${required})`);
         return (ctx, next) => {
             if (!this.checkScope) return next();
             
@@ -118,7 +120,7 @@ class KoaOAuthServer {
 }
 
 function handleResponse(ctx, response) {
-    console.log(`Preparing success response (${response.status})`);
+    logger.info(`Preparing success response (${response.status})`);
     ctx.set(response.headers);
     ctx.status = response.status;
     ctx.body   = response.body;
@@ -126,7 +128,7 @@ function handleResponse(ctx, response) {
 
 // Add custom headers to the context, then propagate error upwards
 function handleError(err, ctx) {
-    console.log(`Preparing error response (${err.code || 500})`);
+    logger.info(`Preparing error response (${err.code || 500})`);
 
     const response = new Response(ctx.response);
     ctx.set(response.headers);

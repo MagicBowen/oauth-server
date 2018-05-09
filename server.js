@@ -7,12 +7,14 @@ const controller = require('./controller');
 const templating = require('./templating');
 const staticFiles = require('./static-files');
 const model = require('./models/model');
+const logger = require('./logger').logger('server');
 
 ///////////////////////////////////////////////////////////
 const isProduction = process.env.NODE_ENV === 'production';
 const port = process.env.PORT || 3000;
 const host = process.env.PORT || '127.0.0.1';
 
+// Initial DB model for OAuth
 model.init();
 
 ///////////////////////////////////////////////////////////
@@ -21,6 +23,7 @@ app.keys = ['superupersessionsecret'];
 app.use(convert(session(app)))
 
 ///////////////////////////////////////////////////////////
+// OAuth server setup
 const OAuthServer = require('./oauth-server');
 const oauth = new OAuthServer({
     scope: false, 
@@ -42,12 +45,12 @@ app.use(upateOAuth(oauth));
 ///////////////////////////////////////////////////////////
 // log middleware
 app.use(async (ctx, next) => {
-    console.log(`process request for '${ctx.request.method} ${ctx.request.url}' ...`);
+    logger.info(`process request for '${ctx.request.method} ${ctx.request.url}' ...`);
     var start = new Date().getTime();
     await next();
     var execTime = new Date().getTime() - start;
     ctx.response.set('X-Response-Time', `${execTime}ms`); 
-    console.log(`... response in duration ${execTime}ms`);
+    logger.info(`... response in duration ${execTime}ms`);
 });
 
 ///////////////////////////////////////////////////////////
@@ -64,12 +67,14 @@ app.use(templating('views', {
 app.use(controller());
 
 ///////////////////////////////////////////////////////////
+// Catch unhandled exceptions
 process.on('uncaughtException',function(err){
-    console.log('uncaughtException-->'+err.stack+'--'+new Date().toLocaleDateString()+'-'+new Date().toLocaleTimeString());
+    logger.error('uncaughtException-->'+err.stack+'--'+new Date().toLocaleDateString()+'-'+new Date().toLocaleTimeString());
     process.exit();
 });
 
 ///////////////////////////////////////////////////////////
+// Resource for oauth test
 const rPrivate = new Router();
 const rCourse = new Router();
 
@@ -83,4 +88,4 @@ app.use(rPrivate.routes());
 
 ///////////////////////////////////////////////////////////
 app.listen(port, host);
-console.log(`Server is running on ${host}:${port}...`);
+logger.info(`Server is running on ${host}:${port}...`);

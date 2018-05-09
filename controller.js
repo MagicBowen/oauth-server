@@ -1,4 +1,5 @@
 const fs = require('fs');
+const logger = require('./logger').logger('controller');
 
 // add url-route in /controllers:
 
@@ -7,26 +8,26 @@ function addMapping(router, mapping) {
         if (url.startsWith('GET ')) {
             var path = url.substring(4);
             router.get(path, mapping[url]);
-            console.log(`register URL mapping: GET ${path}`);
+            logger.info(`register URL mapping: GET ${path}`);
         } else if (url.startsWith('POST ')) {
             var path = url.substring(5);
             if (mapping[url] instanceof Array) {
-                console.log('warn: add multi router for ' + path);
+                logger.warn('add multi router for ' + path);
                 router.post(path, mapping[url][0], mapping[url][1]);
             } else {
                 router.post(path, mapping[url]);
             }
-            console.log(`register URL mapping: POST ${path}`);
+            logger.info(`register URL mapping: POST ${path}`);
         } else if (url.startsWith('PUT ')) {
             var path = url.substring(4);
             router.put(path, mapping[url]);
-            console.log(`register URL mapping: PUT ${path}`);
+            logger.info(`register URL mapping: PUT ${path}`);
         } else if (url.startsWith('DELETE ')) {
             var path = url.substring(7);
             router.del(path, mapping[url]);
-            console.log(`register URL mapping: DELETE ${path}`);
+            logger.info(`register URL mapping: DELETE ${path}`);
         } else {
-            console.log(`invalid URL: ${url}`);
+            logger.info(`invalid URL: ${url}`);
         }
     }
 }
@@ -35,7 +36,7 @@ function addControllers(router, dir) {
     fs.readdirSync(__dirname + '/' + dir).filter((f) => {
         return f.endsWith('.js');
     }).forEach((f) => {
-        console.log(`process controller: ${f}...`);
+        logger.info(`process controller: ${f}...`);
         let mapping = require(__dirname + '/' + dir + '/' + f);
         addMapping(router, mapping);
     });

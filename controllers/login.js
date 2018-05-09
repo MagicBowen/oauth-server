@@ -1,4 +1,5 @@
 const model    = require('../models/model')
+const logger = require('../logger').logger('login');
 
 var getLogin = async (ctx, next) => {
     ctx.render('login.html');
@@ -6,21 +7,21 @@ var getLogin = async (ctx, next) => {
 
 var postLogin = async (ctx, next) => {
     const creds = ctx.request.body;
-    console.log(`Authenticating ${creds.username}`);
+    logger.debug(`Authenticating ${creds.username}`);
 
     const user = await model.getUser(creds.username, creds.password);
 
     if(!user) {
-        console.log('Invalid credentials');
+        logger.warn('Invalid credentials');
         ctx.redirect('/login');
         return;
     }
-    console.log(`User ${user.id} Login Success!`);
+    logger.debug(`User ${user.id} Login Success!`);
     ctx.session.userId = user.id;
 
     // If we were sent here from grant page, redirect back
     if(ctx.session.hasOwnProperty('query')) {
-        console.log('Redirecting back to grant dialog');
+        logger.debug('Redirecting back to grant dialog');
         ctx.redirect('/oauth/authorize');
         return;
     }
