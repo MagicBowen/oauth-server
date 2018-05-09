@@ -6,11 +6,14 @@ const bodyParser = require('koa-bodyparser');
 const controller = require('./controller');
 const templating = require('./templating');
 const staticFiles = require('./static-files');
+const model = require('./models/model');
 
 ///////////////////////////////////////////////////////////
 const isProduction = process.env.NODE_ENV === 'production';
 const port = process.env.PORT || 3000;
 const host = process.env.PORT || '127.0.0.1';
+
+model.init();
 
 ///////////////////////////////////////////////////////////
 const app = new Koa();

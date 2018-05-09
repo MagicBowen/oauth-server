@@ -21,6 +21,10 @@ const db = {
 
 const model = {};
 
+model.init = () => {
+    console.log('Init memory db model successful!');
+}
+
 // Client lookup - Note that for *authcode* grants, the secret is not provided
 model.getClient = (id, secret) => {
     console.log(`Looking up client ${id}:${secret}`);
