@@ -32,7 +32,7 @@ var oauthAuthorize = async (ctx, next) => {
 
     if(!redirect_uri) {
         client.redirectUris.push(ctx.session.query.redirect_uri);
-        model.updateClient(client);
+        await model.updateClient(client);
         logger.debug(`Add new redirect uri(${ctx.session.query.redirect_uri}) to client(${client.id})`);
     }
     ctx.render('authorize.html', client);
