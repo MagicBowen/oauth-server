@@ -5,7 +5,7 @@ var getUser = async (ctx, next) => {
     var accessToken = await model.getAccessToken(token);
     if (accessToken) {
         ctx.response.type = "application/json";
-        ctx.response.body = { result: { phoneId : accessToken.user.username}, status: { code: 200,errerType: "success"}};
+        ctx.response.body = { result: { phoneId : accessToken.user.username}, status: { code: 200,errorType: "success"}};
     } else {
         ctx.response.status = 404;
     }
