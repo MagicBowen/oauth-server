@@ -18,7 +18,7 @@ var oauthAuthorize = async (ctx, next) => {
             response_type: ctx.request.query.response_type
         };
 
-        ctx.redirect('/oauth/login');
+        ctx.redirect('/login');
         return;
     }
 
@@ -45,7 +45,7 @@ var oauthAuthorize = async (ctx, next) => {
 var authCodeGrant = async (ctx, next) => {
     if(!ctx.session.userId) {
         logger.debug('User not authenticated, redirecting to /login');
-        ctx.redirect('/oauth/login');
+        ctx.redirect('/login');
         return;
     }
 
@@ -84,9 +84,9 @@ var doAuthorize = async (ctx, next) => {
 }
 
 module.exports = {
-    'GET /token': oauthToken,
-    'POST /token': oauthToken,
-    'PUT /token': oauthToken,
-    'GET /authorize': oauthAuthorize,
-    'POST /authorize': [authCodeGrant, doAuthorize],
+    'GET /oauth/token': oauthToken,
+    'POST /oauth/token': oauthToken,
+    'PUT /oauth/token': oauthToken,
+    'GET /oauth/authorize': oauthAuthorize,
+    'POST /oauth/authorize': [authCodeGrant, doAuthorize],
 };
