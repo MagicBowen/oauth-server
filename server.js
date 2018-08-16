@@ -12,7 +12,7 @@ const logger = require('./logger').logger('server');
 ///////////////////////////////////////////////////////////
 const isProduction = true;
 const port = process.env.PORT || 9000;
-const host = process.env.HOST || '127.0.0.1';
+const host = process.env.HOST || '0.0.0.0';
 
 // Initial DB model for OAuth
 model.init();
