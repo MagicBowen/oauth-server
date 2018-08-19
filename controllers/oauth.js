@@ -18,7 +18,7 @@ var oauthAuthorize = async (ctx, next) => {
             response_type: ctx.request.query.response_type
         };
 
-        ctx.redirect('api/oauth/login');
+        ctx.redirect('/api/oauth/login');
         return;
     }
 
@@ -45,7 +45,7 @@ var oauthAuthorize = async (ctx, next) => {
 var authCodeGrant = async (ctx, next) => {
     if(!ctx.session.userId) {
         logger.debug('User not authenticated, redirecting to /login');
-        ctx.redirect('api/oauth/login');
+        ctx.redirect('/api/oauth/login');
         return;
     }
 
