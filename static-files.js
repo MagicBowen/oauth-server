@@ -6,7 +6,7 @@ const logger = require('./logger').logger('staticfile');
 function staticFiles(url, dir, prefix) {
     return async (ctx, next) => {
         let orgRpath = ctx.request.path;
-        let rpath= orgRpath.replice(prefix,'')
+        let rpath= orgRpath.replace(prefix,'')
         logger.info('rpath is ',orgRpath, rpath)
         if (rpath.startsWith(url)) {
             let fp = path.join(dir, rpath.substring(url.length));
