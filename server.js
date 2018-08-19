@@ -5,6 +5,7 @@ const convert = require('koa-convert');
 const bodyParser = require('koa-bodyparser');
 const controller = require('./controller');
 const templating = require('./templating');
+// const serve = require('koa-static');
 const staticFiles = require('./static-files');
 const model = require('./models/model');
 const logger = require('./logger').logger('server');
@@ -55,7 +56,10 @@ app.use(async (ctx, next) => {
 
 ///////////////////////////////////////////////////////////
 // deal static files:
-app.use(staticFiles('static', __dirname + '/static'));
+app.use(staticFiles('static', __dirname + '/static', 'api/oauth/'));
+// app.use(serve('./static', {
+//     proxy: '/api/oauth'
+//   }));
 // parse request body:
 app.use(bodyParser());
 // add nunjucks as view:
