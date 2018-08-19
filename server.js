@@ -56,7 +56,7 @@ app.use(async (ctx, next) => {
 
 ///////////////////////////////////////////////////////////
 // deal static files:
-app.use(staticFiles('static', __dirname + '/static', 'api/oauth/'));
+app.use(staticFiles('/static', __dirname + '/static', 'api/oauth'));
 // app.use(serve('./static', {
 //     proxy: '/api/oauth'
 //   }));
