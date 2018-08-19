@@ -80,7 +80,7 @@ process.on('uncaughtException',function(err){
 ///////////////////////////////////////////////////////////
 // Resource for oauth test
 const rPrivate = new Router();
-const rCourse = new Router({prefix:'/api/oauth'});
+const rCourse = new Router();
 
 rCourse.get('/', oauth.scope('course'), (ctx) => {
     ctx.response.body = { message: 'Get user course success!' };
