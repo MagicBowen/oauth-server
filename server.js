@@ -55,7 +55,7 @@ app.use(async (ctx, next) => {
 
 ///////////////////////////////////////////////////////////
 // deal static files:
-app.use(staticFiles('/api/oauth/static', __dirname + '/static'));
+app.use(staticFiles('static', __dirname + '/static'));
 // parse request body:
 app.use(bodyParser());
 // add nunjucks as view:
