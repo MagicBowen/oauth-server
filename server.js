@@ -55,7 +55,7 @@ app.use(async (ctx, next) => {
 
 ///////////////////////////////////////////////////////////
 // deal static files:
-app.use(staticFiles('/static/', __dirname + '/static'));
+app.use(staticFiles('/api/oauth/static/', __dirname + '/static'));
 // parse request body:
 app.use(bodyParser());
 // add nunjucks as view:
@@ -76,7 +76,7 @@ process.on('uncaughtException',function(err){
 ///////////////////////////////////////////////////////////
 // Resource for oauth test
 const rPrivate = new Router();
-const rCourse = new Router();
+const rCourse = new Router({prefix:'/api/oauth'});
 
 rCourse.get('/', oauth.scope('course'), (ctx) => {
     ctx.response.body = { message: 'Get user course success!' };

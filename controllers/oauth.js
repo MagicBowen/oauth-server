@@ -84,9 +84,9 @@ var doAuthorize = async (ctx, next) => {
 }
 
 module.exports = {
-    'GET /oauth/token': oauthToken,
-    'POST /oauth/token': oauthToken,
-    'PUT /oauth/token': oauthToken,
-    'GET /oauth/authorize': oauthAuthorize,
-    'POST /oauth/authorize': [authCodeGrant, doAuthorize],
+    'GET /token': oauthToken,
+    'POST /token': oauthToken,
+    'PUT /token': oauthToken,
+    'GET /authorize': oauthAuthorize,
+    'POST /authorize': [authCodeGrant, doAuthorize],
 };
