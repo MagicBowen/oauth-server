@@ -37,7 +37,7 @@ var postLogin = async (ctx, next) => {
 
 var logout = async (ctx, next) => {
     ctx.session.userId = null;
-    ctx.redirect('/login');
+    ctx.redirect('api/oauth/login');
 };
 
 const sms = require("gaoxin_sms_gateway/dist").default;
