@@ -1,7 +1,7 @@
 const path = require('path');
 const mime = require('mime');
 const fs = require('mz/fs');
-const logger = require('../logger').logger('staticfile');
+const logger = require('./logger').logger('staticfile');
 
 function staticFiles(url, dir, prefix) {
     return async (ctx, next) => {
