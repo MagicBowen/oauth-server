@@ -7,6 +7,7 @@ function staticFiles(url, dir) {
         let rpath = ctx.request.path;
         if (rpath.startsWith(url)) {
             let fp = path.join(dir, rpath.substring(url.length));
+            console.log('path is ',fp)
             if (await fs.exists(fp)) {
                 ctx.response.type = mime.getType(rpath);
                 ctx.response.body = await fs.readFile(fp);
