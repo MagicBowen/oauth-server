@@ -70,6 +70,7 @@ var authCodeGrant = async (ctx, next) => {
     ctx.request.body         = ctx.session.query;
     ctx.request.body.user_id = ctx.session.userId;
     ctx.session.query        = null;
+    ctx.session.userId       = null;
 
     return next();
 };
