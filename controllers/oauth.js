@@ -10,13 +10,13 @@ var oauthToken = async (ctx, next) => {
 var oauthAuthorize = async (ctx, next) => {
     if(!ctx.session.userId) {
         logger.debug('User not authenticated, redirecting to /login');
-        logger.debug('User not authenticated, redirecting to /login',ctx.request);
+        logger.debug('User not authenticated, redirecting to /login',ctx.query);
         ctx.session.query = {
-            state:         ctx.request.query.state,
-            scope:         ctx.request.query.scope,
-            client_id:     ctx.request.query.client_id,
-            redirect_uri:  ctx.request.query.redirect_uri,
-            response_type: ctx.request.query.response_type
+            state:         ctx.query.state,
+            scope:         ctx.query.scope,
+            client_id:     ctx.query.client_id,
+            redirect_uri:  ctx.query.redirect_uri,
+            response_type: ctx.query.response_type
         };
 
         ctx.redirect('login');
