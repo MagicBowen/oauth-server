@@ -10,7 +10,6 @@ var oauthToken = async (ctx, next) => {
 var oauthAuthorize = async (ctx, next) => {
     if(!ctx.session.userId) {
         logger.debug('User not authenticated, redirecting to /login');
-        logger.debug('User not authenticated, redirecting to /login',ctx.query);
         ctx.session.query = {
             state:         ctx.query.state,
             scope:         ctx.query.scope,
@@ -22,9 +21,7 @@ var oauthAuthorize = async (ctx, next) => {
         ctx.redirect('login');
         return;
     }
-
-    logger.info('session', ctx.session)
-
+    
     const client = await model.getClient(ctx.session.query.client_id);
     
     if(!client) { ctx.throw(401, 'No such client'); }
