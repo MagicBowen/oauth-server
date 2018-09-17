@@ -149,8 +149,12 @@ model.getAccessToken = async (accessToken) => {
     const token = await Token.findOne({accessToken : accessToken}).exec();
     if(!token) { return false; }
 
+    logger.debug(`find token ${JSON.stringify(token)}`)
+
     token.user = await User.findOne({id : token.user.id}).exec();
+    logger.debug(`find user ${JSON.stringify(token)}`)
     token.client = await Client.findOne({id : token.client.id}).exec();
+    logger.debug(`find user ${JSON.stringify(client)}`)
 
     return token;
 };
