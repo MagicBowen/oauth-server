@@ -154,7 +154,7 @@ model.getAccessToken = async (accessToken) => {
     token.user = await User.findOne({id : token.user.id}).exec();
     logger.debug(`find user ${JSON.stringify(token)}`)
     token.client = await Client.findOne({id : token.client.id}).exec();
-    logger.debug(`find user ${JSON.stringify(client)}`)
+    logger.debug(`find user ${JSON.stringify(token)}`)
 
     return token;
 };
