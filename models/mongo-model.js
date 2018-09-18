@@ -59,7 +59,7 @@ model.init = async () => {
             accessTokenLifetime: 3600,
             refreshTokenLifetime: 604800,
             redirectUris: [],
-            grants: ['authorization_code'],
+            grants: ['client_credentials', 'refresh_token', 'authorization_code', 'password'],
             validScopes: [],                
         });        
         await xiaomi.save();
