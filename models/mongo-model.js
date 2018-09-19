@@ -123,17 +123,20 @@ model.addUser = async (username, password) => {
 
     const oriUser = await User.findOne({username : username}).exec();
     if (oriUser) {
-        logger.warn(`user(${username}) is already in mongo, delete it now!`);
-        await User.deleteOne({username : username}).exec();
+        logger.debug(`Modify user ${username}:${password} successful!`);
+        oriUser.set({password: password})
+
+        await oriUser.save();
+    } else {
+        const user = new User({
+            id : uuid.v1(),
+            username : username,
+            password : password,
+            timestamp: timestamp
+        });
+        await user.save();
+        logger.debug(`Add new user ${username}:${password} successful!`);
     }
-    const user = new User({
-        id : uuid.v1(),
-        username : username,
-        password : password,
-        timestamp: timestamp
-    });
-    await user.save();
-    logger.debug(`Add new user ${username}:${password} successful!`);
 }
 
 model.deleteUser = async (username) => {
